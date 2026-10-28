@@ -1,7 +1,7 @@
 # Spécifications — App de courses Damien & Laeti
 
 > Nom de travail : **Panier** (à renommer)
-> Version du document : 1.4 — 28/10/2026
+> Version du document : 1.5 — 28/10/2026
 
 ---
 
@@ -99,9 +99,10 @@ Objectif : remplacer dès la première semaine la liste actuelle (papier, notes,
 - **Liste unique** partagée, sans rayons à configurer.
 - **Synchronisation temps réel** : un ajout ou un cochage de l'un apparaît immédiatement chez l'autre.
 - Chaque article affiche : icône, nom, quantité (facultative), note (facultative), auteur de l'ajout (pastille D / L).
-- **Tap sur la ligne** = cocher : l'article est barré et descend en bas de liste. Nouveau tap = décocher.
-- **Boutons + / −** visibles sur la quantité.
-- **Menu « … »** sur chaque ligne : modifier la note, supprimer (avec « Annuler » pendant 5 s).
+- **Rond à cocher** visible devant chaque article : au tap (sur le rond ou n'importe où sur la ligne), il devient une coche verte, l'article est barré et descend dans « Dans le panier ». Nouveau tap = le sortir du panier.
+- **Boutons + / −** visibles sur la quantité, placée sous le nom pour laisser la place aux noms longs.
+- **Poubelle visible** sur chaque ligne, dans la liste comme dans le panier : supprime en un tap, avec « Annuler » pendant 5 s.
+- **Menu « … »** sur chaque ligne : modifier la note, mettre ou retirer des favoris.
 - **Bouton « Courses terminées »**, dans la zone du pouce : archive les articles cochés dans l'historique et les retire de la liste. Les non-cochés restent.
 
 ### 4.2 Ajout rapide
