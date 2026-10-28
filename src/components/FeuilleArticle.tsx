@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { Article, Produit } from '../lib/types.ts';
+import { estFavori, type Article, type Produit } from '../lib/types.ts';
 import { Feuille } from './Feuille.tsx';
 
 interface Props {
@@ -41,7 +41,7 @@ export function FeuilleArticle({ article, produit, onFermer, onNote, onEtoile, o
 
       {produit && (
         <button className="btn" onClick={() => onEtoile(produit)}>
-          {produit.est_favori ? '★ Retirer des favoris' : '☆ Mettre en favori'}
+          {estFavori(produit) ? '★ Retirer des favoris' : '☆ Mettre en favori'}
         </button>
       )}
       <button className="btn btn-danger" onClick={onSupprimer}>

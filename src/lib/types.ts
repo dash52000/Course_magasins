@@ -62,3 +62,12 @@ export type Fonction =
   | 'historique'
   | 'export'
   | 'import';
+
+/**
+ * Un produit est un favori s'il est marqué comme tel, ou s'il vient du pack de démarrage
+ * et n'a pas été retiré (quelle que soit la version du script SQL lancée).
+ */
+export function estFavori(p: Produit): boolean {
+  if (p.masque) return false;
+  return p.est_favori || p.issu_du_pack;
+}

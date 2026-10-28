@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import type { Foyer } from '../lib/useFoyer.ts';
-import type { Produit } from '../lib/types.ts';
+import { estFavori, type Produit } from '../lib/types.ts';
 import { normaliser } from '../lib/normalise.ts';
 import type { Message } from './Bandeau.tsx';
 
@@ -21,7 +21,7 @@ export function Favoris({ foyer, informer }: Props) {
   const favoris = useMemo(() => {
     const cle = normaliser(filtre);
     return foyer.produits
-      .filter((p) => p.est_favori && !p.masque && (!cle || p.nom_normalise.includes(cle)))
+      .filter((p) => estFavori(p) && (!cle || p.nom_normalise.includes(cle)))
       .sort((a, b) => b.nb_achats - a.nb_achats || a.nom.localeCompare(b.nom, 'fr'));
   }, [foyer.produits, filtre]);
 

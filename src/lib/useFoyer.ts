@@ -3,7 +3,7 @@ import { db } from './supabase.ts';
 import { normaliser } from './normalise.ts';
 import { devinerIcone } from './icones.ts';
 import type { Saisie } from './parse.ts';
-import type { Article, Course, Fonction, ProfilId, Produit } from './types.ts';
+import { estFavori, type Article, type Course, type Fonction, type ProfilId, type Produit } from './types.ts';
 
 export type Statut = 'chargement' | 'ok' | 'hors-ligne';
 
@@ -312,9 +312,9 @@ export function useFoyer(profil: ProfilId | null) {
     (p: Produit) =>
       majProduit(
         p.id,
-        p.est_favori
+        estFavori(p)
           ? // Un produit du pack retiré des favoris ne doit pas y revenir tout seul.
-            { est_favori: false, favori_auto: false, masque: p.issu_du_pack && p.nb_achats === 0 }
+            { est_favori: false, favori_auto: false, masque: p.issu_du_pack }
           : { est_favori: true, favori_auto: false, masque: false },
       ),
     [majProduit],
