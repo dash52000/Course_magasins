@@ -128,6 +128,7 @@ export function Liste({ foyer, profil, informer }: Props) {
               onBasculer={() => void foyer.basculer(a)}
               onQuantite={(sens) => { foyer.noter('quantite'); void foyer.changerQuantite(a, sens); }}
               onOptions={() => setOuvert(a)}
+              onSupprimer={() => void supprimer(a)}
             />
           ))}
         </ul>
@@ -144,6 +145,7 @@ export function Liste({ foyer, profil, informer }: Props) {
                 onBasculer={() => void foyer.basculer(a)}
                 onQuantite={() => {}}
                 onOptions={() => setOuvert(a)}
+                onSupprimer={() => void supprimer(a)}
               />
             ))}
           </ul>
