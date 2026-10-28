@@ -53,6 +53,8 @@ export type Fonction =
   | 'autocompletion'
   | 'favori_ajout'
   | 'favori_etoile'
+  | 'favori_creation'
+  | 'favori_edition'
   | 'quantite'
   | 'note'
   | 'suppression'

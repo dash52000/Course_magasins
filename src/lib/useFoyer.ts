@@ -216,6 +216,12 @@ export function useFoyer(profil: ProfilId | null) {
     [profil, trouverOuCreer, majProduit],
   );
 
+  /** Répercute un nouveau nom ou une nouvelle icône sur les lignes de la liste. */
+  const majIconeArticles = async (produitId: string, champs: Partial<Article>) => {
+    setArticles((l) => l.map((a) => (a.produit_id === produitId ? { ...a, ...champs } : a)));
+    await db().from('articles_liste').update(champs).eq('produit_id', produitId);
+  };
+
   const majArticle = useCallback(async (id: string, champs: Partial<Article>) => {
     setArticles((l) => l.map((a) => (a.id === id ? { ...a, ...champs } : a)));
     await db().from('articles_liste').update(champs).eq('id', id);
@@ -334,6 +340,39 @@ export function useFoyer(profil: ProfilId | null) {
     [majProduit],
   );
 
+  /** Crée un favori (ou remet en favori un produit déjà connu) avec l'icône choisie. */
+  const creerFavori = useCallback(
+    async (nom: string, icone: string): Promise<Produit> => {
+      const produit = await trouverOuCreer(nom);
+      await majProduit(produit.id, { est_favori: true, masque: false, icone });
+      await majIconeArticles(produit.id, { icone });
+      return { ...produit, est_favori: true, masque: false, icone };
+    },
+    [trouverOuCreer, majProduit],
+  );
+
+  /**
+   * Renomme un produit et/ou change son icône. Renvoie false si le nouveau nom
+   * correspond déjà à un autre produit.
+   */
+  const modifierProduit = useCallback(
+    async (p: Produit, nom: string, icone: string): Promise<boolean> => {
+      const cle = normaliser(nom);
+      if (cle !== p.nom_normalise && produitsRef.current.some((x) => x.nom_normalise === cle && x.id !== p.id)) {
+        return false;
+      }
+      const champs: Partial<Produit> = { icone };
+      if (nom !== p.nom) {
+        champs.nom = nom;
+        champs.nom_normalise = cle;
+      }
+      await majProduit(p.id, champs);
+      await majIconeArticles(p.id, { icone, ...(champs.nom ? { nom } : {}) });
+      return true;
+    },
+    [majProduit],
+  );
+
   const historique = useCallback(async (): Promise<Course[]> => {
     const { data, error } = await db()
       .from('courses')
@@ -381,6 +420,8 @@ export function useFoyer(profil: ProfilId | null) {
     terminer,
     etoile,
     majFavori,
+    creerFavori,
+    modifierProduit,
     masquer,
     historique,
     exporter,

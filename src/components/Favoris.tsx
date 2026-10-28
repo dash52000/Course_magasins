@@ -3,6 +3,7 @@ import type { Foyer } from '../lib/useFoyer.ts';
 import { estFavori, type Produit } from '../lib/types.ts';
 import { normaliser } from '../lib/normalise.ts';
 import type { Message } from './Bandeau.tsx';
+import { FeuilleFavori } from './FeuilleFavori.tsx';
 
 interface Props {
   foyer: Foyer;
@@ -12,6 +13,8 @@ interface Props {
 export function Favoris({ foyer, informer }: Props) {
   const [filtre, setFiltre] = useState('');
   const [edition, setEdition] = useState(false);
+  /** Feuille ouverte : 'nouveau' pour créer, ou le produit à modifier. */
+  const [feuille, setFeuille] = useState<'nouveau' | Produit | null>(null);
 
   const dansLaListe = useMemo(
     () => new Set(foyer.articles.filter((a) => !a.coche).map((a) => a.produit_id)),
@@ -43,7 +46,35 @@ export function Favoris({ foyer, informer }: Props) {
     }
   };
 
+  const creer = async (nom: string, icone: string) => {
+    setFeuille(null);
+    foyer.noter('favori_creation');
+    try {
+      await foyer.creerFavori(nom, icone);
+      setFiltre('');
+      informer({ texte: `${icone} ${nom} ajouté aux favoris`, duree: 3000 });
+    } catch {
+      informer({ texte: "Le favori n'a pas pu être créé. Vérifie le réseau et réessaie." });
+    }
+  };
+
+  const enregistrer = async (p: Produit, nom: string, icone: string) => {
+    foyer.noter('favori_edition');
+    try {
+      const ok = await foyer.modifierProduit(p, nom, icone);
+      if (!ok) {
+        informer({ texte: `« ${nom} » existe déjà dans les produits. Choisis un autre nom.` });
+        return;
+      }
+      setFeuille(null);
+      informer({ texte: `${icone} ${nom} enregistré`, duree: 2500 });
+    } catch {
+      informer({ texte: "La modification n'est pas passée. Vérifie le réseau et réessaie." });
+    }
+  };
+
   const retirer = (p: Produit) => {
+    setFeuille(null);
     foyer.noter('favori_etoile');
     void foyer.etoile(p);
     informer({
@@ -56,9 +87,16 @@ export function Favoris({ foyer, informer }: Props) {
     <section className="ecran">
       <header className="entete">
         <h1 className="titre-ecran">Favoris</h1>
-        <button className={edition ? 'btn-entete actif' : 'btn-entete'} onClick={() => setEdition((e) => !e)} aria-pressed={edition}>
-          {edition ? 'Terminé' : 'Modifier'}
-        </button>
+        <div className="entete-actions">
+          {!edition && (
+            <button className="btn-entete" onClick={() => setFeuille('nouveau')}>
+              + Nouveau
+            </button>
+          )}
+          <button className={edition ? 'btn-entete actif' : 'btn-entete'} onClick={() => setEdition((e) => !e)} aria-pressed={edition}>
+            {edition ? 'Terminé' : 'Modifier'}
+          </button>
+        </div>
       </header>
 
       <input
@@ -70,12 +108,18 @@ export function Favoris({ foyer, informer }: Props) {
         type="search"
       />
 
-      {edition && <p className="discret">Touche ✕ pour retirer un produit des favoris.</p>}
+      {edition && <p className="discret">Touche un favori pour changer son nom ou son icône, ou le retirer.</p>}
 
       {favoris.length === 0 ? (
         <div className="vide">
           <p className="vide-titre">{filtre ? 'Aucun favori ne correspond.' : 'Pas encore de favoris.'}</p>
-          <p className="discret">Un produit acheté deux fois devient favori tout seul.</p>
+          {filtre.trim() ? (
+            <button className="btn btn-plein" onClick={() => setFeuille('nouveau')}>
+              Créer « {filtre.trim()} » en favori
+            </button>
+          ) : (
+            <p className="discret">Un produit acheté deux fois devient favori tout seul.</p>
+          )}
         </div>
       ) : (
         <ul className="etal">
@@ -85,16 +129,16 @@ export function Favoris({ foyer, informer }: Props) {
               <li key={p.id} className={present ? 'tuile presente' : 'tuile'}>
                 <button
                   className="tuile-btn"
-                  onClick={() => (edition ? retirer(p) : void ajouter(p))}
-                  aria-label={edition ? `Retirer ${p.nom} des favoris` : `Ajouter ${p.nom}${present ? ' (déjà dans la liste)' : ''}`}
+                  onClick={() => (edition ? setFeuille(p) : void ajouter(p))}
+                  aria-label={edition ? `Modifier ${p.nom}` : `Ajouter ${p.nom}${present ? ' (déjà dans la liste)' : ''}`}
                 >
                   <span className="tuile-icone" aria-hidden>
                     {p.icone ?? '🛒'}
                   </span>
                   <span className="tuile-nom">{p.nom}</span>
                   {edition ? (
-                    <span className="tuile-badge tuile-retirer" aria-hidden>
-                      ✕
+                    <span className="tuile-badge tuile-modifier" aria-hidden>
+                      ✎
                     </span>
                   ) : (
                     present && (
@@ -108,6 +152,22 @@ export function Favoris({ foyer, informer }: Props) {
             );
           })}
         </ul>
+      )}
+
+      {feuille === 'nouveau' && (
+        <FeuilleFavori
+          nomInitial={filtre.trim()}
+          onFermer={() => setFeuille(null)}
+          onValider={(nom, icone) => void creer(nom, icone)}
+        />
+      )}
+      {feuille && feuille !== 'nouveau' && (
+        <FeuilleFavori
+          produit={feuille}
+          onFermer={() => setFeuille(null)}
+          onValider={(nom, icone) => void enregistrer(feuille, nom, icone)}
+          onRetirer={() => retirer(feuille)}
+        />
       )}
     </section>
   );

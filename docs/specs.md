@@ -1,7 +1,7 @@
 # Spécifications — App de courses Damien & Laeti
 
 > Nom de travail : **Panier** (à renommer)
-> Version du document : 1.5 — 28/10/2026
+> Version du document : 1.6 — 28/10/2026
 
 ---
 
@@ -119,6 +119,8 @@ Objectif : remplacer dès la première semaine la liste actuelle (papier, notes,
 - **Pack de démarrage** : ~50 produits courants pré-chargés (lait, pain, œufs, pâtes…), avec icônes. Les inutiles se suppriment depuis le menu « … ».
 - Écran Favoris : ajout à la liste en **un tap**.
 - Étoile pour mettre un produit en favori manuellement.
+- **« + Nouveau »** : créer un favori en tapant son nom ; l'icône est devinée pendant la frappe et peut être changée parmi des emojis rangés par rayon. Une recherche sans résultat propose directement « Créer « … » en favori ».
+- **Mode « Modifier »** : toucher un favori pour changer son nom ou son icône (répercuté sur la liste), ou le retirer des favoris.
 - Quantité et note par défaut **apprises** : la dernière utilisée est reprise.
 
 ### 4.4 Doublons
